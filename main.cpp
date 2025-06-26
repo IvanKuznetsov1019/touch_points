@@ -67,7 +67,7 @@ pair<double, double> getCorrectAngularValues(
 }
 
 int main() {
-  setlocale(LC_ALL, "ru_UA.UTF-8");
+  setlocale(LC_ALL, "ru_RU.UTF-8");
 
   double cxX, cvX, cxY, cvY, cX, cY, r;
 
