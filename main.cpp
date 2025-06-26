@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <utility>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ pair<double, double> getAngularValues(const double xa, const double ya,
 
 pair<double, double> getTouchPoint(const double xa, const double ya,
                                    const double xb, const double yb,
-                                   const double r, const double k) {
+                                   const double k) {
   double tmp = ya - yb - (k * xa);
   double a = (k * k) + 1;
   double b = ((-2 * xb) + (2 * k * tmp));
@@ -33,32 +34,35 @@ pair<double, double> getTouchPoint(const double xa, const double ya,
 pair<double, double> getCorrectAngularValues(
     const pair<double, double> &cxAngularValues,
     const pair<double, double> &cvAngularValues) {
-  map<double, pair<double, double>> kBetwenLines;
+  map<double, pair<double, double>> angleBetweenLines;
   double tmpK;
   tmpK = abs((cxAngularValues.first - cvAngularValues.first) /
              (1 + (cxAngularValues.first * cvAngularValues.first)));
-  kBetwenLines[tmpK] = make_pair(cxAngularValues.first, cvAngularValues.first);
+  angleBetweenLines[tmpK] =
+      make_pair(cxAngularValues.first, cvAngularValues.first);
 
   tmpK = abs((cxAngularValues.first - cvAngularValues.second) /
              (1 + (cxAngularValues.first * cvAngularValues.second)));
-  kBetwenLines[tmpK] = make_pair(cxAngularValues.first, cvAngularValues.second);
+  angleBetweenLines[tmpK] =
+      make_pair(cxAngularValues.first, cvAngularValues.second);
 
   tmpK = abs((cxAngularValues.second - cvAngularValues.first) /
              (1 + (cxAngularValues.second * cvAngularValues.first)));
-  kBetwenLines[tmpK] = make_pair(cxAngularValues.second, cvAngularValues.first);
+  angleBetweenLines[tmpK] =
+      make_pair(cxAngularValues.second, cvAngularValues.first);
 
   tmpK = abs((cxAngularValues.second - cvAngularValues.second) /
              (1 + (cxAngularValues.second * cvAngularValues.second)));
-  kBetwenLines[tmpK] =
+  angleBetweenLines[tmpK] =
       make_pair(cxAngularValues.second, cvAngularValues.second);
 
   double minimumAngle = tmpK;
-  for (auto ans : kBetwenLines) {
-    if (ans.first < minimumAngle) {
-      minimumAngle = ans.first;
+  for (auto item : angleBetweenLines) {
+    if (item.first < minimumAngle) {
+      minimumAngle = item.first;
     }
   }
-  return kBetwenLines[minimumAngle];
+  return angleBetweenLines[minimumAngle];
 }
 
 int main() {
@@ -76,9 +80,9 @@ int main() {
   pair<double, double> correctAngularValues =
       getCorrectAngularValues(cxAngularValues, cvAndularValues);
   pair<double, double> cxTouchPoint =
-      getTouchPoint(cxX, cxY, cX, cY, r, correctAngularValues.first);
+      getTouchPoint(cxX, cxY, cX, cY, correctAngularValues.first);
   pair<double, double> cvTouchPoint =
-      getTouchPoint(cvX, cvY, cX, cY, r, correctAngularValues.second);
+      getTouchPoint(cvX, cvY, cX, cY, correctAngularValues.second);
 
   cout << "cx touch point: (" << cxTouchPoint.first << ','
        << cxTouchPoint.second << ")" << endl;
