@@ -57,9 +57,9 @@ pair<double, double> getCorrectAngularValues(
       make_pair(cxAngularValues.second, cvAngularValues.second);
 
   double minimumAngle = tmpK;
-  for (auto item : angleBetweenLines) {
-    if (item.first < minimumAngle) {
-      minimumAngle = item.first;
+  for (auto [angle, kValues] : angleBetweenLines) {
+    if (angle < minimumAngle) {
+      minimumAngle = angle;
     }
   }
   return angleBetweenLines[minimumAngle];
