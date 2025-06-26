@@ -53,8 +53,6 @@ pair<double, double> getCorrectAngularValues(
              ? cvAngularValues.first
              : cvAngularValues.second;
   }
-
-  cout << k1 << "   " << k2 << endl;
   return make_pair(k1, k2);
 }
 
