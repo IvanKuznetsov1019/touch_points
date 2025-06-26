@@ -13,11 +13,11 @@ pair<double, double> getAngularValues(const double xa, const double ya,
   double b = 8 * tmp * (xa - xb);
   double a = (8 * xa * xb) - (4 * xb * xb) - (4 * xa * xa) + (4 * r * r);
   double c = 4 * ((r * r) - (tmp * tmp));
-  double D = (b * b) - (4 * a * c);
-  double s = sqrt(D);
+  double d = (b * b) - (4 * a * c);
+  double s = sqrt(d);
   double k1, k2;
-  k1 = (s - b) / (2.0f * a);
-  k2 = (-s - b) / (2.0f * a);
+  k1 = (s - b) / (2 * a);
+  k2 = (-s - b) / (2 * a);
   return make_pair(k1, k2);
 }
 
