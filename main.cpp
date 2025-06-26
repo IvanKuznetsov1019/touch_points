@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -32,39 +33,36 @@ pair<double, double> getTouchPoint(const double xa, const double ya,
 pair<double, double> getCorrectAngularValues(
     const pair<double, double> &cxAngularValues,
     const pair<double, double> &cvAngularValues) {
-  double k1, k2;
-  if (abs(cxAngularValues.first) != abs(cxAngularValues.second)) {
-    k1 = (abs(cxAngularValues.first) < abs(cxAngularValues.second))
-             ? cxAngularValues.first
-             : cxAngularValues.second;
-  } else {
-    k1 = (cxAngularValues.first > cxAngularValues.second)
-             ? cxAngularValues.first
-             : cxAngularValues.second;
-  }
+  map<double, pair<double, double>> kBetwenLines;
+  double tmpK;
+  tmpK = abs((cxAngularValues.first - cvAngularValues.first) /
+             (1 + (cxAngularValues.first * cvAngularValues.first)));
+  kBetwenLines[tmpK] = make_pair(cxAngularValues.first, cvAngularValues.first);
 
-  if (abs(cxAngularValues.first) != abs(cxAngularValues.second)) {
-    k2 = (abs(cvAngularValues.first) < abs(cvAngularValues.second))
-             ? cvAngularValues.first
-             : cvAngularValues.second;
+  tmpK = abs((cxAngularValues.first - cvAngularValues.second) /
+             (1 + (cxAngularValues.first * cvAngularValues.second)));
+  kBetwenLines[tmpK] = make_pair(cxAngularValues.first, cvAngularValues.second);
 
-  } else {
-    k2 = (cvAngularValues.first < cvAngularValues.second)
-             ? cvAngularValues.first
-             : cvAngularValues.second;
+  tmpK = abs((cxAngularValues.second - cvAngularValues.first) /
+             (1 + (cxAngularValues.second * cvAngularValues.first)));
+  kBetwenLines[tmpK] = make_pair(cxAngularValues.second, cvAngularValues.first);
+
+  tmpK = abs((cxAngularValues.second - cvAngularValues.second) /
+             (1 + (cxAngularValues.second * cvAngularValues.second)));
+  kBetwenLines[tmpK] =
+      make_pair(cxAngularValues.second, cvAngularValues.second);
+
+  double minimumAngle = tmpK;
+  for (auto ans : kBetwenLines) {
+    if (ans.first < minimumAngle) {
+      minimumAngle = ans.first;
+    }
   }
-  return make_pair(k1, k2);
+  return kBetwenLines[minimumAngle];
 }
 
 int main() {
   double cxX, cvX, cxY, cvY, cX, cY, r;
-  cxX = -11.5;
-  cxY = 0.45;
-  cvX = -11.5;
-  cvY = -0.08;
-  cX = -11.76;
-  cY = 0.1;
-  r = 0.2;
 
   cout << "Введите X Y точки cx:" << endl;
   cin >> cxX >> cxY;
