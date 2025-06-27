@@ -32,33 +32,34 @@ pair<double, double> getTouchPoint(const double xa, const double ya,
   return make_pair(x, y);
 }
 
+double getAngleBetweenLines(const double k1, const double k2) {
+  double angle = abs((k1 - k2) / (1 + k1 * k2));
+  return angle;
+}
+
 pair<double, double> getCorrectAngularValues(
     const pair<double, double> &cxAngularValues,
     const pair<double, double> &cvAngularValues) {
   map<double, pair<double, double>> angleBetweenLines;
-  double tmpK;
-  tmpK = abs((cxAngularValues.first - cvAngularValues.first) /
-             (1 + (cxAngularValues.first * cvAngularValues.first)));
-  angleBetweenLines[tmpK] =
+  double k;
+  k = getAngleBetweenLines(cxAngularValues.first, cvAngularValues.first);
+  angleBetweenLines[k] =
       make_pair(cxAngularValues.first, cvAngularValues.first);
 
-  tmpK = abs((cxAngularValues.first - cvAngularValues.second) /
-             (1 + (cxAngularValues.first * cvAngularValues.second)));
-  angleBetweenLines[tmpK] =
+  k = getAngleBetweenLines(cxAngularValues.first, cvAngularValues.second);
+  angleBetweenLines[k] =
       make_pair(cxAngularValues.first, cvAngularValues.second);
 
-  tmpK = abs((cxAngularValues.second - cvAngularValues.first) /
-             (1 + (cxAngularValues.second * cvAngularValues.first)));
-  angleBetweenLines[tmpK] =
+  k = getAngleBetweenLines(cxAngularValues.second, cvAngularValues.first);
+  angleBetweenLines[k] =
       make_pair(cxAngularValues.second, cvAngularValues.first);
 
-  tmpK = abs((cxAngularValues.second - cvAngularValues.second) /
-             (1 + (cxAngularValues.second * cvAngularValues.second)));
-  angleBetweenLines[tmpK] =
+  k = getAngleBetweenLines(cxAngularValues.second, cvAngularValues.second);
+  angleBetweenLines[k] =
       make_pair(cxAngularValues.second, cvAngularValues.second);
 
-  double minimumAngle = tmpK;
-  for (auto [angle, kValues] : angleBetweenLines) {
+  double minimumAngle = k;
+  for (const auto [angle, kValues] : angleBetweenLines) {
     if (angle < minimumAngle) {
       minimumAngle = angle;
     }
