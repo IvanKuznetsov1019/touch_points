@@ -3,96 +3,93 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include <vector>
 
 using namespace std;
 
-pair<double, double> getAngularValues(const double xa, const double ya,
-                                      const double xb, const double yb,
-                                      const double r) {
-  double tmp = ya - yb;
-  double b = 8 * tmp * (xa - xb);
-  double a = (8 * xa * xb) - (4 * xb * xb) - (4 * xa * xa) + (4 * r * r);
-  double c = 4 * ((r * r) - (tmp * tmp));
+class Point {
+ public:
+  double x, y;
+};
+
+class Circle {
+ public:
+  double x, y, r;
+  Point getCenter() const { return {x, y}; }
+};
+
+pair<double, double> getSlopes(const Point& p, const Circle& crcl) {
+  double tmp = p.y - crcl.y;
+  double b = 8 * tmp * (p.x - crcl.x);
+  double a = (8 * p.x * crcl.x) - (4 * crcl.x * crcl.x) - (4 * p.x * p.x) +
+             (4 * crcl.r * crcl.r);
+  double c = 4 * ((crcl.r * crcl.r) - (tmp * tmp));
   double d = (b * b) - (4 * a * c);
   double s = sqrt(d);
-  double k1, k2;
-  k1 = (s - b) / (2 * a);
-  k2 = (-s - b) / (2 * a);
-  return make_pair(k1, k2);
+  double k1 = (s - b) / (2 * a);
+  double k2 = (-s - b) / (2 * a);
+  return {k1, k2};
 }
 
-pair<double, double> getTouchPoint(const double xa, const double ya,
-                                   const double xb, const double yb,
-                                   const double k) {
-  double tmp = ya - yb - (k * xa);
+Point getTouchPoint(const Point& p, const Point& center, const double k) {
+  double tmp = p.y - center.y - (k * p.x);
   double a = (k * k) + 1;
-  double b = ((-2 * xb) + (2 * k * tmp));
+  double b = ((-2 * center.x) + (2 * k * tmp));
   double x = (-b) / (2 * a);
-  double y = (k * (x - xa)) + ya;
-  return make_pair(x, y);
+  double y = (k * (x - p.x)) + p.y;
+  return {x, y};
 }
 
-double getAngleBetweenLines(const double k1, const double k2) {
+double angleBetweenLines(const double k1, const double k2) {
   double angle = abs((k1 - k2) / (1 + k1 * k2));
   return angle;
 }
 
-pair<double, double> getCorrectAngularValues(
-    const pair<double, double> &cxAngularValues,
-    const pair<double, double> &cvAngularValues) {
-  map<double, pair<double, double>> angleBetweenLines;
-  double k;
-  k = getAngleBetweenLines(cxAngularValues.first, cvAngularValues.first);
-  angleBetweenLines[k] =
-      make_pair(cxAngularValues.first, cvAngularValues.first);
-
-  k = getAngleBetweenLines(cxAngularValues.first, cvAngularValues.second);
-  angleBetweenLines[k] =
-      make_pair(cxAngularValues.first, cvAngularValues.second);
-
-  k = getAngleBetweenLines(cxAngularValues.second, cvAngularValues.first);
-  angleBetweenLines[k] =
-      make_pair(cxAngularValues.second, cvAngularValues.first);
-
-  k = getAngleBetweenLines(cxAngularValues.second, cvAngularValues.second);
-  angleBetweenLines[k] =
-      make_pair(cxAngularValues.second, cvAngularValues.second);
-
-  double minimumAngle = k;
-  for (const auto [angle, kValues] : angleBetweenLines) {
-    if (angle < minimumAngle) {
-      minimumAngle = angle;
+pair<double, double> getCorrectSlopes(const pair<double, double>& cxSlopes,
+                                      const pair<double, double>& cvSlopes) {
+  vector<double> slopes{cxSlopes.first, cxSlopes.second, cvSlopes.first,
+                        cvSlopes.second};
+  double minAngle = INFINITY;
+  pair<double, double> correctSlopes;
+  for (int i = 0; i < 4; i++) {
+    if (minAngle > angleBetweenLines(slopes[i % 2], slopes[2 + (i / 2)])) {
+      minAngle = angleBetweenLines(slopes[i % 2], slopes[2 + (i / 2)]);
+      correctSlopes = make_pair(slopes[i % 2], slopes[2 + (i / 2)]);
     }
   }
-  return angleBetweenLines[minimumAngle];
+  return correctSlopes;
+}
+
+void input(Point& cxP, Point& cvP, Circle& crcl) {
+  cout << "Введите X Y точки cx:" << endl;
+  cin >> cxP.x >> cxP.y;
+  cout << "Введите X Y точки cv:" << endl;
+  cin >> cvP.x >> cvP.y;
+  cout << "Введите X Y центра окружности и радиус R:" << endl;
+  cin >> crcl.x >> crcl.y >> crcl.r;
+}
+
+void output(const Point& cxTouchPoint, const Point& cvTouchPoint,
+            const pair<double, double>& slopes) {
+  cout << "cx touch point: (" << cxTouchPoint.x << ',' << cxTouchPoint.y << ")"
+       << endl;
+  cout << "cv touch point: (" << cvTouchPoint.x << ',' << cvTouchPoint.y << ")"
+       << endl;
+  cout << "cx k = " << slopes.first << " cv k = " << slopes.second << endl;
 }
 
 int main() {
   setlocale(LC_ALL, "ru_RU.UTF-8");
-
-  double cxX, cvX, cxY, cvY, cX, cY, r;
-
-  cout << "Введите X Y точки cx:" << endl;
-  cin >> cxX >> cxY;
-  cout << "Введите X Y точки cv:" << endl;
-  cin >> cvX >> cvY;
-  cout << "Введите X Y центра окружности и радиус R:" << endl;
-  cin >> cX >> cY >> r;
-
-  pair<double, double> cxAngularValues = getAngularValues(cxX, cxY, cX, cY, r);
-  pair<double, double> cvAndularValues = getAngularValues(cvX, cvY, cX, cY, r);
-  pair<double, double> correctAngularValues =
-      getCorrectAngularValues(cxAngularValues, cvAndularValues);
-  pair<double, double> cxTouchPoint =
-      getTouchPoint(cxX, cxY, cX, cY, correctAngularValues.first);
-  pair<double, double> cvTouchPoint =
-      getTouchPoint(cvX, cvY, cX, cY, correctAngularValues.second);
-
-  cout << "cx touch point: (" << cxTouchPoint.first << ','
-       << cxTouchPoint.second << ")" << endl;
-  cout << "cv touch point: (" << cvTouchPoint.first << ','
-       << cvTouchPoint.second << ")" << endl;
-  cout << "cx k = " << correctAngularValues.first
-       << " cv k = " << correctAngularValues.second << endl;
+  Point cxP, cvP;
+  Circle crcl;
+  input(cxP, cvP, crcl);
+  pair<double, double> cxSlopes = getSlopes(cxP, crcl);
+  pair<double, double> cvSlopes = getSlopes(cvP, crcl);
+  pair<double, double> correctSlopes = getCorrectSlopes(cxSlopes, cvSlopes);
+  Point cxTouchPoint =
+      getTouchPoint(cxP, crcl.getCenter(), correctSlopes.first);
+  Point cvTouchPoint =
+      getTouchPoint(cvP, crcl.getCenter(), correctSlopes.second);
+  output(cxTouchPoint, cvTouchPoint, correctSlopes);
   return 0;
 }
